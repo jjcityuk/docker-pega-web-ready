@@ -71,70 +71,70 @@ else
    export TOMCAT_KEYSTORE_PASSWORD=${TOMCAT_KEYSTORE_PASSWORD}
 fi
 
-if [ -e "$tomcat_keystore_file" ]; then
-  echo "TLS certificate for tomcat exists"
-  cat ${tomcat_keystore_file} | xargs printf '%b\n' | base64 --decode > "${tomcat_cert_root}/tlskeystore.jks"
-  export TOMCAT_KEYSTORE_DIR="${tomcat_cert_root}/tlskeystore.jks"
-else
-  echo "TLS certificate does not exist"
-fi
+#if [ -e "$tomcat_keystore_file" ]; then
+ # echo "TLS certificate for tomcat exists"
+ #cat ${tomcat_keystore_file} | xargs printf '%b\n' | base64 --decode > "${tomcat_cert_root}/tlskeystore.jks"
+  #export TOMCAT_KEYSTORE_DIR="${tomcat_cert_root}/tlskeystore.jks"
+#else
+ # echo "TLS certificate does not exist"
+#fi
 
 # Define the JDBC_URL variable based on inputs
-if [ "$JDBC_URL" == "" ]; then
-  echo "JDBC_URL must be specified.";
-  exit 1
-fi
-if [ "$JDBC_CLASS" == "" ]; then
-  echo "JDBC_CLASS must be specified.";
-  exit 1
-fi
+#if [ "$JDBC_URL" == "" ]; then
+ # echo "JDBC_URL must be specified.";
+  #exit 1
+#fi
+#if [ "$JDBC_CLASS" == "" ]; then
+ # echo "JDBC_CLASS must be specified.";
+  #exit 1
+#fi
 
 
 custom_artifactory_auth=""
-if [ "$SECRET_CUSTOM_ARTIFACTORY_USERNAME" != "" ] || [ "$SECRET_CUSTOM_ARTIFACTORY_PASSWORD" != "" ]; then
-    if [ "$SECRET_CUSTOM_ARTIFACTORY_USERNAME" == "" ] || [ "$SECRET_CUSTOM_ARTIFACTORY_PASSWORD" == "" ]; then
-        echo "SECRET_CUSTOM_ARTIFACTORY_USERNAME & SECRET_CUSTOM_ARTIFACTORY_PASSWORD must be specified for basic authentication for custom artifactory."
-        exit 1
-    else
-        echo "Using basic authentication for custom artifactory to download JDBC driver."
-        custom_artifactory_auth="-u "$SECRET_CUSTOM_ARTIFACTORY_USERNAME":"$SECRET_CUSTOM_ARTIFACTORY_PASSWORD
-    fi
-fi
+#if [ "$SECRET_CUSTOM_ARTIFACTORY_USERNAME" != "" ] || [ "$SECRET_CUSTOM_ARTIFACTORY_PASSWORD" != "" ]; then
+ #   if [ "$SECRET_CUSTOM_ARTIFACTORY_USERNAME" == "" ] || [ "$SECRET_CUSTOM_ARTIFACTORY_PASSWORD" == "" ]; then
+  #      echo "SECRET_CUSTOM_ARTIFACTORY_USERNAME & SECRET_CUSTOM_ARTIFACTORY_PASSWORD must be specified for basic authentication for custom artifactory."
+   #     exit 1
+    #else
+     #   echo "Using basic authentication for custom artifactory to download JDBC driver."
+      #  custom_artifactory_auth="-u "$SECRET_CUSTOM_ARTIFACTORY_USERNAME":"$SECRET_CUSTOM_ARTIFACTORY_PASSWORD
+    #fi
+#fi
 
-if [[ "$custom_artifactory_auth" == "" && ( "$SECRET_CUSTOM_ARTIFACTORY_APIKEY_HEADER" != "" || "$SECRET_CUSTOM_ARTIFACTORY_APIKEY" != "" ) ]]; then
-    if [ "$SECRET_CUSTOM_ARTIFACTORY_APIKEY_HEADER" == "" ] || [ "$SECRET_CUSTOM_ARTIFACTORY_APIKEY" == "" ]; then
-        echo "SECRET_CUSTOM_ARTIFACTORY_APIKEY_HEADER & SECRET_CUSTOM_ARTIFACTORY_APIKEY must be specified for authentication using api key for custom artifactory."
-        exit 1
-    else
-        echo "Using API key for authentication of custom artifactory to download JDBC driver."
-        custom_artifactory_auth="-H "$SECRET_CUSTOM_ARTIFACTORY_APIKEY_HEADER":"$SECRET_CUSTOM_ARTIFACTORY_APIKEY
-    fi
-fi
+#if [[ "$custom_artifactory_auth" == "" && ( "$SECRET_CUSTOM_ARTIFACTORY_APIKEY_HEADER" != "" || "$SECRET_CUSTOM_ARTIFACTORY_APIKEY" != "" ) ]]; then
+ #   if [ "$SECRET_CUSTOM_ARTIFACTORY_APIKEY_HEADER" == "" ] || [ "$SECRET_CUSTOM_ARTIFACTORY_APIKEY" == "" ]; then
+  #      echo "SECRET_CUSTOM_ARTIFACTORY_APIKEY_HEADER & SECRET_CUSTOM_ARTIFACTORY_APIKEY must be specified for authentication using api key for custom artifactory."
+   #     exit 1
+    #else
+     #   echo "Using API key for authentication of custom artifactory to download JDBC driver."
+      #  custom_artifactory_auth="-H "$SECRET_CUSTOM_ARTIFACTORY_APIKEY_HEADER":"$SECRET_CUSTOM_ARTIFACTORY_APIKEY
+    #fi
+#fi
 
-custom_artifactory_certificate=''
-if [ "$(ls -A "${pega_root}/artifactory/cert"/*)" ]; then
-     if [ "$(ls "${pega_root}/artifactory/cert"/* | wc -l)" == 1 ]; then
-       echo "Certificate is provided for custom artifactory's domain ssl verification."
+#custom_artifactory_certificate=''
+#if [ "$(ls -A "${pega_root}/artifactory/cert"/*)" ]; then
+ #    if [ "$(ls "${pega_root}/artifactory/cert"/* | wc -l)" == 1 ]; then
+  #     echo "Certificate is provided for custom artifactory's domain ssl verification."
        # get certificate name
-       for certfile in "${pega_root}/artifactory/cert"/*
-        do
-           echo "folder name: ${pega_root}/artifactory/cert"
-           filename=$(basename "$certfile")
-           ext="${filename##*.}"
-           echo "$filename"
-           if [ "$ext" = "cer" ] || [ "$ext" = "pem" ] || [ "$ext" = "crt" ] || [ "$ext" = "der" ]; then
-              echo "$certfile"
-              custom_artifactory_certificate="--cacert "$certfile
-           else
-              echo "curl needs valid format certificate file for ssl verification."
-              exit 1
-           fi
-        done
-     else
-       echo "Provide one certificate file. The file may contain multiple CA certificates."
-       exit 1
-     fi
-fi
+   #    for certfile in "${pega_root}/artifactory/cert"/*
+    #    do
+     #      echo "folder name: ${pega_root}/artifactory/cert"
+      #     filename=$(basename "$certfile")
+       #    ext="${filename##*.}"
+        #   echo "$filename"
+         #  if [ "$ext" = "cer" ] || [ "$ext" = "pem" ] || [ "$ext" = "crt" ] || [ "$ext" = "der" ]; then
+          #    echo "$certfile"
+           #   custom_artifactory_certificate="--cacert "$certfile
+           #else
+            #  echo "curl needs valid format certificate file for ssl verification."
+             # exit 1
+           #fi
+        #done
+     #else
+      # echo "Provide one certificate file. The file may contain multiple CA certificates."
+       #exit 1
+     #fi
+#fi
 
 if [ "$JDBC_DRIVER_URI" != "" ]; then
   curl_cmd_options=''
